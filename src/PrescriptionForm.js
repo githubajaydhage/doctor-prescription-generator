@@ -10,48 +10,61 @@ const FormCard = styled.form`
   margin-bottom: 28px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-  margin-bottom: 2px;
-`;
-
-const Input = styled.input`
-  padding: 8px 10px;
-  border: 1px solid #cfd8dc;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #fff;
-`;
-
-const TextArea = styled.textarea`
-  padding: 8px 10px;
-  border: 1px solid #cfd8dc;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #fff;
-`;
-
-const MedList = styled.div`
-  display: flex;
+      <Row>
+        <Label>Medicines</Label>
+        <MedList>
+          <MedRow style={{fontWeight:600, color:'#1976d2', fontSize:'1rem', background:'#f0f4f8', borderRadius:6, padding:'4px 0', flexWrap:'nowrap'}}>
+            <span style={{minWidth:120}}>Medicine</span>
+            <span style={{minWidth:90}}>Dosage</span>
+            <span style={{minWidth:90}}>Frequency</span>
+            <span style={{minWidth:90}}>Duration</span>
+            <span style={{minWidth:120}}>Instructions (Sig.)</span>
+            <span style={{minWidth:70}}>Refill</span>
+            <span style={{minWidth:36}}></span>
+            <span style={{minWidth:36}}></span>
+          </MedRow>
+          {form.medicines.map((med, i) => (
+            <MedRow key={i}>
+              <Input value={med.name} onChange={e => handleMedicineChange(i, 'name', e.target.value)} required placeholder={`Medicine #${i+1}`} />
+              <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
+              <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
+              <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
+              <Input value={med.instructions || ''} onChange={e => handleMedicineChange(i, 'instructions', e.target.value)} placeholder="e.g. After food" />
+              <Input value={med.refill || ''} onChange={e => handleMedicineChange(i, 'refill', e.target.value)} placeholder="e.g. 2x" />
+              {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
+              {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
+            </MedRow>
+          ))}
+        </MedList>
+        <div style={{display:'flex',gap:8,margin:'12px 0 0 0'}}>
+          <Button type="button" onClick={() => setForm({ ...form, medicines: getRandomMedicines() })} style={{background:'#1976d2'}}>Randomize</Button>
+          <Button type="button" onClick={() => setForm({ ...form, medicines: [{ name: "", dosage: "", frequency: "", duration: "", instructions: "", refill: "" }] })} style={{background:'#e57373'}}>Clear</Button>
+        </div>
+        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine, or use random suggestions.</div>
+      </Row>
   flex-direction: column;
   gap: 8px;
 `;
 
+// Removed duplicate MedRow grid definition (using flex version below)
 const MedRow = styled.div`
-  display: grid;
-  grid-template-columns: 2.5fr 1.2fr 1.2fr 1.2fr auto auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   margin-bottom: 4px;
+  > * {
+    min-width: 120px;
+    flex: 1 1 120px;
+    max-width: 180px;
+  }
+  > button {
+    min-width: 36px;
+    max-width: 36px;
+    flex: 0 0 36px;
+    padding: 4px 0;
+    margin-left: 0;
+  }
 `;
 
 const Button = styled.button`
@@ -136,12 +149,25 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
     patient: "",
     date: new Date().toISOString().slice(0, 10),
     medicines: [
-      { name: "", dosage: "", frequency: "", duration: "" }
+      { name: "", dosage: "", frequency: "", duration: "", instructions: "", refill: "" }
     ],
-    notes: ""
+    notes: "",
+    signature: null
   });
   const [error, setError] = useState("");
+  const [signaturePreview, setSignaturePreview] = useState(null);
   const [success, setSuccess] = useState(false);
+  const handleSignatureUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setForm({ ...form, signature: ev.target.result });
+        setSignaturePreview(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -238,6 +264,11 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
         </select>
       </Row>
       <Row>
+        <Label>Doctor Digital Signature</Label>
+        <input type="file" accept="image/*" onChange={handleSignatureUpload} />
+        {signaturePreview && <img src={signaturePreview} alt="Signature Preview" style={{maxWidth:180,marginTop:8}} />}
+      </Row>
+      <Row>
         <Label>Doctor Name</Label>
         <Input name="doctor" value={form.doctor} onChange={handleChange} required placeholder="Dr. John Doe" />
       </Row>
@@ -270,6 +301,23 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
         <Input name="patient" value={form.patient} onChange={handleChange} required placeholder="Jane Smith" />
       </Row>
       <Row>
+        <Label>Age</Label>
+        <Input name="age" value={form.age || ''} onChange={handleChange} placeholder="e.g. 29" type="number" min="0" style={{maxWidth:100}} />
+      </Row>
+      <Row>
+        <Label>Sex</Label>
+        <select name="sex" value={form.sex || ''} onChange={handleChange} style={{padding:'8px 10px',borderRadius:6,border:'1px solid #cfd8dc',fontSize:'1rem',maxWidth:120}}>
+          <option value="">Select</option>
+          <option value="M">M</option>
+          <option value="F">F</option>
+          <option value="Other">Other</option>
+        </select>
+      </Row>
+      <Row>
+        <Label>Contact</Label>
+        <Input name="contact" value={form.contact || ''} onChange={handleChange} placeholder="Patient contact (optional)" />
+      </Row>
+      <Row>
         <Label>Date</Label>
         <Input type="date" name="date" value={form.date} onChange={handleChange} required />
       </Row>
@@ -280,13 +328,15 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
           <Button type="button" onClick={() => setForm({ ...form, medicines: [{ name: "", dosage: "", frequency: "", duration: "" }] })} style={{background:'#e57373'}}>Clear</Button>
         </div>
         <MedList>
-          <MedRow style={{fontWeight:600, color:'#1976d2', fontSize:'1rem', background:'#f0f4f8', borderRadius:6, padding:'4px 0'}}>
-            <span>Medicine</span>
-            <span>Dosage</span>
-            <span>Frequency</span>
-            <span>Duration</span>
-            <span></span>
-            <span></span>
+          <MedRow style={{fontWeight:600, color:'#1976d2', fontSize:'1rem', background:'#f0f4f8', borderRadius:6, padding:'4px 0', flexWrap:'nowrap'}}>
+            <span style={{minWidth:120}}>Medicine</span>
+            <span style={{minWidth:90}}>Dosage</span>
+            <span style={{minWidth:90}}>Frequency</span>
+            <span style={{minWidth:90}}>Duration</span>
+            <span style={{minWidth:120}}>Instructions (Sig.)</span>
+            <span style={{minWidth:70}}>Refill</span>
+            <span style={{minWidth:36}}></span>
+            <span style={{minWidth:36}}></span>
           </MedRow>
           {form.medicines.map((med, i) => (
             <MedRow key={i}>
@@ -294,8 +344,10 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
               <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
               <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
               <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
-              {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{padding:'4px 10px',fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
-              {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{padding:'4px 10px',fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
+              <Input value={med.instructions || ''} onChange={e => handleMedicineChange(i, 'instructions', e.target.value)} placeholder="e.g. After food" />
+              <Input value={med.refill || ''} onChange={e => handleMedicineChange(i, 'refill', e.target.value)} placeholder="e.g. 2x" />
+              {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
+              {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
             </MedRow>
           ))}
         </MedList>
@@ -304,6 +356,10 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
       <Row>
         <Label>Notes</Label>
         <TextArea name="notes" value={form.notes} onChange={handleChange} rows={2} placeholder="Any special instructions..." />
+      </Row>
+      <Row>
+        <Label>Prescription Validity (days)</Label>
+        <Input name="validity" value={form.validity || ''} onChange={handleChange} placeholder="e.g. 7" type="number" min="1" style={{maxWidth:100}} />
       </Row>
       <Button type="submit" primary>Generate Prescription</Button>
     </FormCard>
