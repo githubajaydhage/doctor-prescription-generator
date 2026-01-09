@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/doctor-prescription-generator/static/js/main.2352dee6.js",
+    "main.js": "/doctor-prescription-generator/static/js/main.5d056b76.js",
     "index.html": "/doctor-prescription-generator/index.html",
-    "main.2352dee6.js.map": "/doctor-prescription-generator/static/js/main.2352dee6.js.map"
+    "main.5d056b76.js.map": "/doctor-prescription-generator/static/js/main.5d056b76.js.map"
   },
   "entrypoints": [
-    "static/js/main.2352dee6.js"
+    "static/js/main.5d056b76.js"
   ]
 }
