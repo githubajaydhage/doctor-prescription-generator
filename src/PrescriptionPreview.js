@@ -1,8 +1,8 @@
-
 import React, { useRef } from "react";
 import styled from "styled-components";
-// Handwritten font fallback
-const scriptFont = `'Segoe Script', 'Brush Script MT', cursive, Arial, sans-serif`;
+
+// Handwritten font fallback (Google Fonts: Pacifico preferred)
+const scriptFont = `'Pacifico', 'Segoe Script', 'Brush Script MT', cursive, Arial, sans-serif`;
 
 // Real-world hospital logos (SVG or PNG links)
 const hospitalLogos = {
@@ -15,13 +15,13 @@ const hospitalLogos = {
 };
 
 const Card = styled.div`
-  border: 2px solid #1976d2;
-  border-radius: 6px;
+  border: 2.5px solid #1976d2;
+  border-radius: 12px;
   background: #fff;
-  margin: 32px auto 24px auto;
-  max-width: 420px;
-  min-height: 520px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin: 36px auto 28px auto;
+  max-width: 500px;
+  min-height: 540px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
   font-family: 'Segoe UI', Arial, sans-serif;
   position: relative;
   padding: 0;
@@ -34,76 +34,69 @@ const BlueLine = styled.div`
 `;
 
 const RxHeader = styled.div`
-  padding: 18px 18px 0 18px;
+  padding: 24px 28px 0 28px;
 `;
 
 const TopRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 1.01rem;
-  margin-bottom: 2px;
-`;
-
-const Label = styled.span`
-  color: #1976d2;
-  font-weight: 500;
+  font-size: 1.12rem;
+  margin-bottom: 8px;
 `;
 
 const RxInfoRow = styled.div`
   display: flex;
   justify-content: flex-start;
   gap: 18px;
-  font-size: 1.01rem;
-  margin-bottom: 2px;
+  font-size: 1.12rem;
+  margin-bottom: 8px;
+`;
+
+const Label = styled.span`
+  color: #1976d2;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 `;
 
 const RxBody = styled.div`
-  padding: 18px 18px 10px 18px;
-`;
-
-const PatientRow = styled.div`
-  display: flex;
-  gap: 18px;
-  font-size: 1.01rem;
-  margin-bottom: 2px;
-`;
-
-const PatientInfo = styled.div`
-  font-size: 1.05rem;
+  padding: 28px 28px 10px 28px;
 `;
 
 const RxSymbol = styled.div`
-  font-size: 2.1rem;
+  font-size: 2.5rem;
   color: #1976d2;
   font-weight: 700;
   margin: 18px 0 8px 0;
   font-family: 'Times New Roman', serif;
   display: flex;
   align-items: center;
+  letter-spacing: 2px;
 `;
 
 const ScriptText = styled.div`
   font-family: ${scriptFont};
-  font-size: 1.18rem;
-  margin: 18px 0 10px 0;
+  font-size: 1.25rem;
+  margin: 26px 0 14px 0;
   text-align: left;
   min-height: 60px;
   white-space: pre-line;
+  color: #222;
 `;
 
 const Notes = styled.div`
   font-family: ${scriptFont};
-  font-size: 1.1rem;
-  margin: 10px 0 0 0;
+  font-size: 1.18rem;
+  margin: 14px 0 0 0;
   white-space: pre-line;
+  color: #222;
 `;
 
 const RxFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  padding: 10px 18px 18px 18px;
-  font-size: 0.98rem;
+  padding: 18px 28px 24px 28px;
+  font-size: 1.08rem;
   color: #1976d2;
 `;
 
@@ -118,25 +111,9 @@ const Signature = styled.div`
   text-align: right;
   min-width: 160px;
   font-family: ${scriptFont};
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   color: #1976d2;
-`;
-
-const Title = styled.h2`
-  color: ${(p) => p.theme.primary};
-  margin-top: 0;
-  margin-bottom: 18px;
-  font-size: 1.5rem;
-`;
-
-const Info = styled.p`
-  margin: 4px 0;
-  font-size: 1.08rem;
-`;
-
-const MedList = styled.ul`
-  margin: 0 0 8px 0;
-  padding-left: 20px;
+  letter-spacing: 1.5px;
 `;
 
 const ButtonBar = styled.div`
@@ -160,7 +137,7 @@ const Button = styled.button`
   }
 `;
 
-function PrescriptionPreview({ prescription, theme }) {
+function PrescriptionPreview({ prescription, theme, rxSymbol }) {
   const ref = useRef();
 
   const handlePrint = () => {
@@ -178,7 +155,7 @@ function PrescriptionPreview({ prescription, theme }) {
   const handleDownload = () => {
     const element = document.createElement("a");
     const file = new Blob([
-      `Doctor: ${prescription.doctor}\nPatient: ${prescription.patient}\nDate: ${prescription.date}\nMedicines: ${prescription.medicines.join(", ")}\nNotes: ${prescription.notes}`
+      `Doctor: ${prescription.doctor}\nPatient: ${prescription.patient}\nDate: ${prescription.date}\nMedicines: ${prescription.medicines.map(m=>m.name).join(", ")}\nNotes: ${prescription.notes}`
     ], {type: 'text/plain'});
     element.href = URL.createObjectURL(file);
     element.download = "prescription.txt";
@@ -206,15 +183,15 @@ function PrescriptionPreview({ prescription, theme }) {
             <div style={{fontWeight:700,fontSize:'1.1rem',color:'#1976d2'}}>{prescription.clinic || 'Clinic/Hospital'}</div>
           </div>
           <TopRow>
-            <div><Label>Name:</Label> {prescription.patient || "__________"}</div>
-            <div><Label>Date:</Label> {prescription.date || "__________"}</div>
+            <div><Label>Name:</Label> <span style={{fontFamily:scriptFont, fontSize:'1.18rem', color:'#222'}}>{prescription.patient || "__________"}</span></div>
+            <div><Label>Date:</Label> <span style={{fontFamily:scriptFont, fontSize:'1.18rem', color:'#222'}}>{prescription.date || "__________"}</span></div>
           </TopRow>
           <RxInfoRow>
-            <div><Label>Address:</Label> {prescription.address || "__________"}</div>
+            <div><Label>Address:</Label> <span style={{fontFamily:scriptFont, fontSize:'1.18rem', color:'#222'}}>{prescription.address || "__________"}</span></div>
           </RxInfoRow>
           <TopRow>
-            <div><Label>Age:</Label> ______</div>
-            <div><Label>Sex:</Label> ______</div>
+            <div><Label>Age:</Label> <span style={{fontFamily:scriptFont, fontSize:'1.18rem', color:'#222'}}>______</span></div>
+            <div><Label>Sex:</Label> <span style={{fontFamily:scriptFont, fontSize:'1.18rem', color:'#222'}}>______</span></div>
           </TopRow>
         </RxHeader>
         <BlueLine />
