@@ -69,12 +69,9 @@ const Button = styled.button`
 `;
 
 
-// Example doctor profiles
-// Rx symbol variants
+// Rx symbol variants (including icons, not just R types)
 const rxVariants = [
-  '℞', 'Rx', 'ℜ', '℟', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞',
-  <span style={{fontFamily: 'Brush Script MT, cursive', fontSize: '2.2rem', color: '#1976d2'}}>℞</span>,
-  <span style={{fontFamily: 'Segoe Script, cursive', fontSize: '2.2rem', color: '#1976d2'}}>Rx</span>
+  '℞', 'Rx', 'ℜ', '℟', '✚', '✝', '☤', '⚕', '🩺', '🩹', '💊', '💉', '🩻', '🏥', '🩸', '🧬', '🧫', '🧪', '🩺', '🩻', '🩹', '🩸', '🧬', '🧫', '🧪', '🏥', '✚', '✝', '☤', '⚕', 'Rx', '℞', 'ℜ', '℟'
 ];
 
 // Default medicine suggestions
@@ -85,6 +82,9 @@ const defaultMedicines = [
   { name: "Cough Syrup 5ml", dosage: "5ml", frequency: "3x a day", duration: "5 days" },
   { name: "Cetirizine 10mg Tab", dosage: "1 tab", frequency: "1x a day", duration: "3 days" }
 ];
+
+// Example doctor profiles
+const doctorProfiles = [
   {
     name: "Dr. John Doe",
     degree: "MBBS, MD (General Medicine)",

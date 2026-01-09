@@ -4,6 +4,16 @@ import styled from "styled-components";
 // Handwritten font fallback
 const scriptFont = `'Segoe Script', 'Brush Script MT', cursive, Arial, sans-serif`;
 
+// Real-world hospital logos (SVG or PNG links)
+const hospitalLogos = {
+  "City Health Clinic": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Emblem-hospital-blue.svg",
+  "Sunrise Children Hospital": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Emblem-hospital-red.svg",
+  "Apollo Hospitals": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Apollo_Hospitals_Logo.png",
+  "Fortis Healthcare": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fortis_Healthcare_logo.png",
+  "AIIMS": "https://upload.wikimedia.org/wikipedia/en/2/2e/AIIMS_New_Delhi_Logo.png",
+  "Narayana Health": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Narayana_Health_logo.png"
+};
+
 const Card = styled.div`
   border: 2px solid #1976d2;
   border-radius: 6px;
@@ -177,10 +187,24 @@ function PrescriptionPreview({ prescription, theme }) {
     document.body.removeChild(element);
   };
 
+  // Pick logo based on clinic/hospital name
+  let logoUrl = null;
+  if (prescription.clinic && hospitalLogos[prescription.clinic]) {
+    logoUrl = hospitalLogos[prescription.clinic];
+  }
+
   return (
     <Card>
       <div ref={ref}>
         <RxHeader>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+            {logoUrl ? (
+              <img src={logoUrl} alt="Hospital Logo" style={{height:38, width:'auto', marginRight:6}} />
+            ) : (
+              <span style={{fontSize:'2.1rem',color:'#1976d2',marginRight:6}}>🏥</span>
+            )}
+            <div style={{fontWeight:700,fontSize:'1.1rem',color:'#1976d2'}}>{prescription.clinic || 'Clinic/Hospital'}</div>
+          </div>
           <TopRow>
             <div><Label>Name:</Label> {prescription.patient || "__________"}</div>
             <div><Label>Date:</Label> {prescription.date || "__________"}</div>
