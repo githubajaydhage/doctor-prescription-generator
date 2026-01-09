@@ -4,11 +4,92 @@ import styled from "styled-components";
 
 const Card = styled.div`
   border: 2px solid ${(p) => p.theme.primary};
-  border-radius: 12px;
-  background: #f8fafd;
-  padding: 28px 20px 20px 20px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0;
   margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
+`;
+
+const RxHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid ${(p) => p.theme.primary};
+  padding: 18px 28px 10px 28px;
+  background: ${(p) => p.theme.secondary};
+`;
+
+const Clinic = styled.div`
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: ${(p) => p.theme.primary};
+`;
+
+const DocDetails = styled.div`
+  font-size: 1rem;
+  color: ${(p) => p.theme.font};
+  margin-top: 2px;
+`;
+
+const RxBody = styled.div`
+  padding: 18px 28px 10px 28px;
+`;
+
+const PatientRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+const PatientInfo = styled.div`
+  font-size: 1.05rem;
+`;
+
+const RxTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 10px 0;
+  font-size: 1.05rem;
+`;
+
+const RxTh = styled.th`
+  border-bottom: 1.5px solid ${(p) => p.theme.primary};
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+`;
+
+const RxTd = styled.td`
+  padding: 6px 8px;
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+const Notes = styled.div`
+  margin: 10px 0 0 0;
+  font-size: 1.01rem;
+`;
+
+const RxFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 10px 28px 18px 28px;
+  border-top: 1.5px dashed #bbb;
+  font-size: 0.98rem;
+  color: #888;
+`;
+
+const Signature = styled.div`
+  text-align: right;
+  min-width: 180px;
+  font-family: 'Brush Script MT', cursive, Arial, sans-serif;
+  font-size: 1.2rem;
+  color: ${(p) => p.theme.primary};
 `;
 
 const Title = styled.h2`
@@ -79,15 +160,54 @@ function PrescriptionPreview({ prescription, theme }) {
   return (
     <Card>
       <div ref={ref}>
-        <Title>Prescription</Title>
-        <Info><b>Doctor:</b> {prescription.doctor}</Info>
-        <Info><b>Patient:</b> {prescription.patient}</Info>
-        <Info><b>Date:</b> {prescription.date}</Info>
-        <Info><b>Medicines:</b></Info>
-        <MedList>
-          {prescription.medicines.map((med, i) => <li key={i}>{med}</li>)}
-        </MedList>
-        {prescription.notes && <Info><b>Notes:</b> {prescription.notes}</Info>}
+        <RxHeader>
+          <div>
+            <Clinic>City Health Clinic</Clinic>
+            <DocDetails>
+              Dr. {prescription.doctor}<br/>
+              MBBS, MD (General Medicine)<br/>
+              Reg. No: 123456 | Ph: 9876543210
+            </DocDetails>
+          </div>
+          <div style={{textAlign:'right', fontSize:'1.05rem', color:'#666'}}>
+            <div>Date: {prescription.date}</div>
+            <div style={{marginTop:8, fontWeight:600, color:theme.accent}}>Rx</div>
+          </div>
+        </RxHeader>
+        <RxBody>
+          <PatientRow>
+            <PatientInfo><b>Patient:</b> {prescription.patient}</PatientInfo>
+            <PatientInfo><b>Age/Sex:</b> ______ / ______</PatientInfo>
+          </PatientRow>
+          <RxTable>
+            <thead>
+              <tr>
+                <RxTh>Medicine</RxTh>
+                <RxTh>Dosage</RxTh>
+                <RxTh>Frequency</RxTh>
+                <RxTh>Duration</RxTh>
+              </tr>
+            </thead>
+            <tbody>
+              {prescription.medicines.map((med, i) => (
+                <tr key={i}>
+                  <RxTd>{med.name}</RxTd>
+                  <RxTd>{med.dosage || "______"}</RxTd>
+                  <RxTd>{med.frequency || "______"}</RxTd>
+                  <RxTd>{med.duration || "______"}</RxTd>
+                </tr>
+              ))}
+            </tbody>
+          </RxTable>
+          {prescription.notes && <Notes><b>Notes:</b> {prescription.notes}</Notes>}
+        </RxBody>
+        <RxFooter>
+          <div>
+            Reg. No: 123456 | City Health Clinic, 123 Main St, Metro City<br/>
+            Contact: 9876543210 | <span style={{color:theme.accent}}>For medical use only</span>
+          </div>
+          <Signature>Signature</Signature>
+        </RxFooter>
       </div>
       <ButtonBar>
         <Button onClick={handlePrint}>Print</Button>

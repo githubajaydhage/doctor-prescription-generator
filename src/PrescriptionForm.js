@@ -74,7 +74,9 @@ function PrescriptionForm({ setPrescription }) {
     doctor: "",
     patient: "",
     date: new Date().toISOString().slice(0, 10),
-    medicines: [""],
+    medicines: [
+      { name: "", dosage: "", frequency: "", duration: "" }
+    ],
     notes: ""
   });
   const [error, setError] = useState("");
@@ -86,16 +88,19 @@ function PrescriptionForm({ setPrescription }) {
     setSuccess(false);
   };
 
-  const handleMedicineChange = (i, value) => {
+  const handleMedicineChange = (i, field, value) => {
     const medicines = [...form.medicines];
-    medicines[i] = value;
+    medicines[i][field] = value;
     setForm({ ...form, medicines });
     setError("");
     setSuccess(false);
   };
 
   const addMedicine = () => {
-    setForm({ ...form, medicines: [...form.medicines, ""] });
+    setForm({
+      ...form,
+      medicines: [...form.medicines, { name: "", dosage: "", frequency: "", duration: "" }]
+    });
     setError("");
     setSuccess(false);
   };
@@ -111,7 +116,7 @@ function PrescriptionForm({ setPrescription }) {
     if (!form.doctor.trim()) return "Doctor name is required.";
     if (!form.patient.trim()) return "Patient name is required.";
     if (!form.date) return "Date is required.";
-    if (!form.medicines.length || form.medicines.some(m => !m.trim())) return "All medicine fields must be filled.";
+    if (!form.medicines.length || form.medicines.some(m => !m.name.trim())) return "All medicine names must be filled.";
     return "";
   };
 
@@ -148,13 +153,17 @@ function PrescriptionForm({ setPrescription }) {
         <Label>Medicines</Label>
         <MedList>
           {form.medicines.map((med, i) => (
-            <MedRow key={i}>
-              <Input value={med} onChange={e => handleMedicineChange(i, e.target.value)} required placeholder={`Medicine #${i+1}`} style={{flex:1}} />
+            <MedRow key={i} style={{gap:4}}>
+              <Input value={med.name} onChange={e => handleMedicineChange(i, 'name', e.target.value)} required placeholder={`Medicine #${i+1}`} style={{flex:1}} />
+              <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" style={{width:90}} />
+              <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" style={{width:90}} />
+              <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" style={{width:90}} />
               {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{padding:'4px 10px',fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
               {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{padding:'4px 10px',fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
             </MedRow>
           ))}
         </MedList>
+        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine.</div>
       </Row>
       <Row>
         <Label>Notes</Label>
