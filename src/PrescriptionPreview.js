@@ -1,4 +1,53 @@
+
 import React, { useRef } from "react";
+import styled from "styled-components";
+
+const Card = styled.div`
+  border: 2px solid ${(p) => p.theme.primary};
+  border-radius: 12px;
+  background: #f8fafd;
+  padding: 28px 20px 20px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+`;
+
+const Title = styled.h2`
+  color: ${(p) => p.theme.primary};
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+`;
+
+const Info = styled.p`
+  margin: 4px 0;
+  font-size: 1.08rem;
+`;
+
+const MedList = styled.ul`
+  margin: 0 0 8px 0;
+  padding-left: 20px;
+`;
+
+const ButtonBar = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+`;
+
+const Button = styled.button`
+  background: ${(p) => p.accent ? p.theme.accent : p.theme.primary};
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: ${(p) => p.accent ? '#b71c4a' : '#1251a3'};
+  }
+`;
 
 function PrescriptionPreview({ prescription, theme }) {
   const ref = useRef();
@@ -28,21 +77,23 @@ function PrescriptionPreview({ prescription, theme }) {
   };
 
   return (
-    <div style={{ border: `2px solid ${theme.primary}`, padding: 24, marginBottom: 24 }}>
+    <Card>
       <div ref={ref}>
-        <h2 style={{ color: theme.primary }}>Prescription</h2>
-        <p><b>Doctor:</b> {prescription.doctor}</p>
-        <p><b>Patient:</b> {prescription.patient}</p>
-        <p><b>Date:</b> {prescription.date}</p>
-        <p><b>Medicines:</b></p>
-        <ul>
+        <Title>Prescription</Title>
+        <Info><b>Doctor:</b> {prescription.doctor}</Info>
+        <Info><b>Patient:</b> {prescription.patient}</Info>
+        <Info><b>Date:</b> {prescription.date}</Info>
+        <Info><b>Medicines:</b></Info>
+        <MedList>
           {prescription.medicines.map((med, i) => <li key={i}>{med}</li>)}
-        </ul>
-        {prescription.notes && <p><b>Notes:</b> {prescription.notes}</p>}
+        </MedList>
+        {prescription.notes && <Info><b>Notes:</b> {prescription.notes}</Info>}
       </div>
-      <button onClick={handlePrint} style={{ marginRight: 8 }}>Print</button>
-      <button onClick={handleDownload}>Download</button>
-    </div>
+      <ButtonBar>
+        <Button onClick={handlePrint}>Print</Button>
+        <Button accent onClick={handleDownload}>Download</Button>
+      </ButtonBar>
+    </Card>
   );
 }
 
