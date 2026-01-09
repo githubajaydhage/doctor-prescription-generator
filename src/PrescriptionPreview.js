@@ -1,95 +1,113 @@
 
 import React, { useRef } from "react";
 import styled from "styled-components";
+// Handwritten font fallback
+const scriptFont = `'Segoe Script', 'Brush Script MT', cursive, Arial, sans-serif`;
 
 const Card = styled.div`
-  border: 2px solid ${(p) => p.theme.primary};
-  border-radius: 10px;
+  border: 2px solid #1976d2;
+  border-radius: 6px;
   background: #fff;
-  padding: 0;
-  margin-bottom: 24px;
+  margin: 32px auto 24px auto;
+  max-width: 420px;
+  min-height: 520px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
   font-family: 'Segoe UI', Arial, sans-serif;
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+`;
+
+const BlueLine = styled.div`
+  border-bottom: 1.5px solid #1976d2;
+  margin: 0 18px;
 `;
 
 const RxHeader = styled.div`
+  padding: 18px 18px 0 18px;
+`;
+
+const TopRow = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 2px solid ${(p) => p.theme.primary};
-  padding: 18px 28px 10px 28px;
-  background: ${(p) => p.theme.secondary};
+  font-size: 1.01rem;
+  margin-bottom: 2px;
 `;
 
-const Clinic = styled.div`
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: ${(p) => p.theme.primary};
+const Label = styled.span`
+  color: #1976d2;
+  font-weight: 500;
 `;
 
-const DocDetails = styled.div`
-  font-size: 1rem;
-  color: ${(p) => p.theme.font};
-  margin-top: 2px;
+const RxInfoRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  gap: 18px;
+  font-size: 1.01rem;
+  margin-bottom: 2px;
 `;
 
 const RxBody = styled.div`
-  padding: 18px 28px 10px 28px;
+  padding: 18px 18px 10px 18px;
 `;
 
 const PatientRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 18px;
+  font-size: 1.01rem;
+  margin-bottom: 2px;
 `;
 
 const PatientInfo = styled.div`
   font-size: 1.05rem;
 `;
 
-const RxTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+const RxSymbol = styled.div`
+  font-size: 2.1rem;
+  color: #1976d2;
+  font-weight: 700;
+  margin: 18px 0 8px 0;
+  font-family: 'Times New Roman', serif;
+`;
+
+const ScriptText = styled.div`
+  font-family: ${scriptFont};
+  font-size: 1.18rem;
   margin: 18px 0 10px 0;
-  font-size: 1.05rem;
-`;
-
-const RxTh = styled.th`
-  border-bottom: 1.5px solid ${(p) => p.theme.primary};
-  padding: 6px 8px;
   text-align: left;
-  font-weight: 600;
-`;
-
-const RxTd = styled.td`
-  padding: 6px 8px;
-  border-bottom: 1px solid #e0e0e0;
+  min-height: 60px;
+  white-space: pre-line;
 `;
 
 const Notes = styled.div`
+  font-family: ${scriptFont};
+  font-size: 1.1rem;
   margin: 10px 0 0 0;
-  font-size: 1.01rem;
+  white-space: pre-line;
 `;
 
 const RxFooter = styled.div`
   display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 10px 18px 18px 18px;
+  font-size: 0.98rem;
+  color: #1976d2;
+`;
+
+const FooterBox = styled.div`
+  width: 100%;
+  display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 10px 28px 18px 28px;
-  border-top: 1.5px dashed #bbb;
-  font-size: 0.98rem;
-  color: #888;
 `;
 
 const Signature = styled.div`
   text-align: right;
-  min-width: 180px;
-  font-family: 'Brush Script MT', cursive, Arial, sans-serif;
-  font-size: 1.2rem;
-  color: ${(p) => p.theme.primary};
+  min-width: 160px;
+  font-family: ${scriptFont};
+  font-size: 1.25rem;
+  color: #1976d2;
 `;
 
 const Title = styled.h2`
@@ -161,55 +179,38 @@ function PrescriptionPreview({ prescription, theme }) {
     <Card>
       <div ref={ref}>
         <RxHeader>
-          <div>
-            <Clinic>{prescription.clinic || "Clinic/Hospital Name"}</Clinic>
-            <DocDetails>
-              {prescription.doctor ? `Dr. ${prescription.doctor}` : "Doctor Name"}<br/>
-              {prescription.degree && <>{prescription.degree}<br/></>}
-              {prescription.reg && <>Reg. No: {prescription.reg} | </>}{prescription.phone && <>Ph: {prescription.phone}</>}
-            </DocDetails>
-          </div>
-          <div style={{textAlign:'right', fontSize:'1.05rem', color:'#666'}}>
-            <div>Date: {prescription.date}</div>
-            <div style={{marginTop:8, fontWeight:600, color:theme.accent}}>Rx</div>
-          </div>
+          <TopRow>
+            <div><Label>Name:</Label> {prescription.patient || "__________"}</div>
+            <div><Label>Date:</Label> {prescription.date || "__________"}</div>
+          </TopRow>
+          <RxInfoRow>
+            <div><Label>Address:</Label> {prescription.address || "__________"}</div>
+          </RxInfoRow>
+          <TopRow>
+            <div><Label>Age:</Label> ______</div>
+            <div><Label>Sex:</Label> ______</div>
+          </TopRow>
         </RxHeader>
+        <BlueLine />
         <RxBody>
-          <PatientRow>
-            <PatientInfo><b>Patient:</b> {prescription.patient}</PatientInfo>
-            <PatientInfo><b>Age/Sex:</b> ______ / ______</PatientInfo>
-          </PatientRow>
-          <RxTable>
-            <thead>
-              <tr>
-                <RxTh>Medicine</RxTh>
-                <RxTh>Dosage</RxTh>
-                <RxTh>Frequency</RxTh>
-                <RxTh>Duration</RxTh>
-              </tr>
-            </thead>
-            <tbody>
-              {prescription.medicines.map((med, i) => (
-                <tr key={i}>
-                  <RxTd>{med.name}</RxTd>
-                  <RxTd>{med.dosage || "______"}</RxTd>
-                  <RxTd>{med.frequency || "______"}</RxTd>
-                  <RxTd>{med.duration || "______"}</RxTd>
-                </tr>
-              ))}
-            </tbody>
-          </RxTable>
-          {prescription.notes && <Notes><b>Notes:</b> {prescription.notes}</Notes>}
+          <RxSymbol>℞</RxSymbol>
+          <ScriptText>
+            {prescription.medicines.map((med, i) => (
+              med.name ? `${med.name} ${med.dosage ? med.dosage : ''} ${med.frequency ? med.frequency : ''} ${med.duration ? med.duration : ''}\n` : ''
+            ))}
+          </ScriptText>
+          {prescription.notes && <Notes>{prescription.notes}</Notes>}
         </RxBody>
+        <BlueLine />
         <RxFooter>
-          <div>
-            {prescription.reg && <>Reg. No: {prescription.reg} | </>}
-            {prescription.clinic && <>{prescription.clinic}, </>}
-            {prescription.address && <>{prescription.address}<br/></>}
-            {prescription.phone && <>Contact: {prescription.phone} | </>}
-            <span style={{color:theme.accent}}>For medical use only</span>
-          </div>
-          <Signature>Signature</Signature>
+          <FooterBox>
+            <div>
+              <div>Physician's Sig <span style={{marginLeft:24}}><Signature>{prescription.doctor || "Signature"}</Signature></span></div>
+              <div style={{fontSize:'0.97rem',color:'#1976d2',marginTop:2}}>
+                Lic. No. {prescription.reg || "______"} &nbsp; PTR No. {prescription.phone || "______"} &nbsp; S2 No. ______
+              </div>
+            </div>
+          </FooterBox>
         </RxFooter>
       </div>
       <ButtonBar>
