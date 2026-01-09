@@ -70,7 +70,21 @@ const Button = styled.button`
 
 
 // Example doctor profiles
-const doctorProfiles = [
+// Rx symbol variants
+const rxVariants = [
+  '℞', 'Rx', 'ℜ', '℟', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞', '℞',
+  <span style={{fontFamily: 'Brush Script MT, cursive', fontSize: '2.2rem', color: '#1976d2'}}>℞</span>,
+  <span style={{fontFamily: 'Segoe Script, cursive', fontSize: '2.2rem', color: '#1976d2'}}>Rx</span>
+];
+
+// Default medicine suggestions
+const defaultMedicines = [
+  { name: "Amoxicillin 500mg Cap", dosage: "1 cap", frequency: "3x a day", duration: "7 days" },
+  { name: "Paracetamol 500mg Tab", dosage: "1 tab", frequency: "2x a day", duration: "5 days" },
+  { name: "Ibuprofen 400mg Tab", dosage: "1 tab", frequency: "2x a day", duration: "3 days" },
+  { name: "Cough Syrup 5ml", dosage: "5ml", frequency: "3x a day", duration: "5 days" },
+  { name: "Cetirizine 10mg Tab", dosage: "1 tab", frequency: "1x a day", duration: "3 days" }
+];
   {
     name: "Dr. John Doe",
     degree: "MBBS, MD (General Medicine)",
@@ -97,7 +111,19 @@ const doctorProfiles = [
   }
 ];
 
-function PrescriptionForm({ setPrescription }) {
+function getRandomRx() {
+  const idx = Math.floor(Math.random() * rxVariants.length);
+  return rxVariants[idx];
+}
+
+function getRandomMedicines() {
+  // Pick 1-3 random default medicines
+  const count = Math.floor(Math.random() * 3) + 1;
+  const shuffled = [...defaultMedicines].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
   const [form, setForm] = useState({
     doctor: doctorProfiles[0].name,
     degree: doctorProfiles[0].degree,
@@ -189,6 +215,9 @@ function PrescriptionForm({ setPrescription }) {
       setSuccess(false);
       return;
     }
+    // Set dynamic Rx symbol and default medicines for preview
+    if (setRxSymbol) setRxSymbol(getRandomRx());
+    if (setDefaultMeds) setDefaultMeds(form.medicines);
     setPrescription(form);
     setError("");
     setSuccess(true);
@@ -244,6 +273,10 @@ function PrescriptionForm({ setPrescription }) {
       </Row>
       <Row>
         <Label>Medicines</Label>
+        <div style={{display:'flex',gap:8,marginBottom:8}}>
+          <Button type="button" onClick={() => setForm({ ...form, medicines: getRandomMedicines() })} style={{background:'#1976d2'}}>Randomize</Button>
+          <Button type="button" onClick={() => setForm({ ...form, medicines: [{ name: "", dosage: "", frequency: "", duration: "" }] })} style={{background:'#e57373'}}>Clear</Button>
+        </div>
         <MedList>
           {form.medicines.map((med, i) => (
             <MedRow key={i} style={{gap:4}}>
@@ -256,7 +289,7 @@ function PrescriptionForm({ setPrescription }) {
             </MedRow>
           ))}
         </MedList>
-        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine.</div>
+        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine, or use random suggestions.</div>
       </Row>
       <Row>
         <Label>Notes</Label>

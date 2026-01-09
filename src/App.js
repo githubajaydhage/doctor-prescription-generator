@@ -76,6 +76,8 @@ function App() {
   const [theme, setTheme] = useState(themes.Default);
   const [selectedTheme, setSelectedTheme] = useState("Default");
   const [prescription, setPrescription] = useState(null);
+  const [rxSymbol, setRxSymbol] = useState('℞');
+  const [defaultMeds, setDefaultMeds] = useState([]);
 
   // Handle theme switch
   const handleThemeChange = (e) => {
@@ -114,8 +116,8 @@ function App() {
             {selectedTheme === "Custom" && <span style={{fontSize: '0.95rem', color: theme.accent, fontWeight: 500}}>Customizing…</span>}
           </div>
           <ThemeCustomizer theme={theme} setTheme={handleCustomTheme} />
-          <PrescriptionForm setPrescription={setPrescription} />
-          {prescription && <PrescriptionPreview prescription={prescription} theme={theme} />}
+          <PrescriptionForm setPrescription={setPrescription} setRxSymbol={setRxSymbol} setDefaultMeds={setDefaultMeds} />
+          {prescription && <PrescriptionPreview prescription={prescription} theme={theme} rxSymbol={rxSymbol} />}
         </Main>
       </Container>
     </ThemeProvider>

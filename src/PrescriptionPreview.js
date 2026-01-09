@@ -68,6 +68,8 @@ const RxSymbol = styled.div`
   font-weight: 700;
   margin: 18px 0 8px 0;
   font-family: 'Times New Roman', serif;
+  display: flex;
+  align-items: center;
 `;
 
 const ScriptText = styled.div`
@@ -193,7 +195,7 @@ function PrescriptionPreview({ prescription, theme }) {
         </RxHeader>
         <BlueLine />
         <RxBody>
-          <RxSymbol>℞</RxSymbol>
+          <RxSymbol>{rxSymbol || '℞'}</RxSymbol>
           <ScriptText>
             {prescription.medicines.map((med, i) => (
               med.name ? `${med.name} ${med.dosage ? med.dosage : ''} ${med.frequency ? med.frequency : ''} ${med.duration ? med.duration : ''}\n` : ''
