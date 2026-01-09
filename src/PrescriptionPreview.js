@@ -162,11 +162,11 @@ function PrescriptionPreview({ prescription, theme }) {
       <div ref={ref}>
         <RxHeader>
           <div>
-            <Clinic>City Health Clinic</Clinic>
+            <Clinic>{prescription.clinic || "Clinic/Hospital Name"}</Clinic>
             <DocDetails>
-              Dr. {prescription.doctor}<br/>
-              MBBS, MD (General Medicine)<br/>
-              Reg. No: 123456 | Ph: 9876543210
+              {prescription.doctor ? `Dr. ${prescription.doctor}` : "Doctor Name"}<br/>
+              {prescription.degree && <>{prescription.degree}<br/></>}
+              {prescription.reg && <>Reg. No: {prescription.reg} | </>}{prescription.phone && <>Ph: {prescription.phone}</>}
             </DocDetails>
           </div>
           <div style={{textAlign:'right', fontSize:'1.05rem', color:'#666'}}>
@@ -203,8 +203,11 @@ function PrescriptionPreview({ prescription, theme }) {
         </RxBody>
         <RxFooter>
           <div>
-            Reg. No: 123456 | City Health Clinic, 123 Main St, Metro City<br/>
-            Contact: 9876543210 | <span style={{color:theme.accent}}>For medical use only</span>
+            {prescription.reg && <>Reg. No: {prescription.reg} | </>}
+            {prescription.clinic && <>{prescription.clinic}, </>}
+            {prescription.address && <>{prescription.address}<br/></>}
+            {prescription.phone && <>Contact: {prescription.phone} | </>}
+            <span style={{color:theme.accent}}>For medical use only</span>
           </div>
           <Signature>Signature</Signature>
         </RxFooter>

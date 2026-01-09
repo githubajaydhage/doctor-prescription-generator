@@ -69,9 +69,42 @@ const Button = styled.button`
 `;
 
 
+// Example doctor profiles
+const doctorProfiles = [
+  {
+    name: "Dr. John Doe",
+    degree: "MBBS, MD (General Medicine)",
+    reg: "123456",
+    phone: "9876543210",
+    clinic: "City Health Clinic",
+    address: "123 Main St, Metro City"
+  },
+  {
+    name: "Dr. Priya Sharma",
+    degree: "MBBS, DNB (Pediatrics)",
+    reg: "654321",
+    phone: "9123456780",
+    clinic: "Sunrise Children Hospital",
+    address: "45 Sunrise Ave, Metro City"
+  },
+  {
+    name: "Custom",
+    degree: "",
+    reg: "",
+    phone: "",
+    clinic: "",
+    address: ""
+  }
+];
+
 function PrescriptionForm({ setPrescription }) {
   const [form, setForm] = useState({
-    doctor: "",
+    doctor: doctorProfiles[0].name,
+    degree: doctorProfiles[0].degree,
+    reg: doctorProfiles[0].reg,
+    phone: doctorProfiles[0].phone,
+    clinic: doctorProfiles[0].clinic,
+    address: doctorProfiles[0].address,
     patient: "",
     date: new Date().toISOString().slice(0, 10),
     medicines: [
@@ -84,6 +117,34 @@ function PrescriptionForm({ setPrescription }) {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+    setSuccess(false);
+  };
+
+  // Handle doctor profile selection
+  const handleDoctorProfile = (e) => {
+    const idx = e.target.value;
+    if (doctorProfiles[idx].name === "Custom") {
+      setForm({
+        ...form,
+        doctor: "",
+        degree: "",
+        reg: "",
+        phone: "",
+        clinic: "",
+        address: ""
+      });
+    } else {
+      setForm({
+        ...form,
+        doctor: doctorProfiles[idx].name,
+        degree: doctorProfiles[idx].degree,
+        reg: doctorProfiles[idx].reg,
+        phone: doctorProfiles[idx].phone,
+        clinic: doctorProfiles[idx].clinic,
+        address: doctorProfiles[idx].address
+      });
+    }
     setError("");
     setSuccess(false);
   };
@@ -138,9 +199,41 @@ function PrescriptionForm({ setPrescription }) {
       {error && <div style={{color:'#d32f2f',fontWeight:500,marginBottom:8}}>{error}</div>}
       {success && <div style={{color:'#388e3c',fontWeight:500,marginBottom:8}}>Prescription generated!</div>}
       <Row>
+        <Label>Doctor Profile</Label>
+        <select onChange={handleDoctorProfile} style={{padding:'8px 10px',borderRadius:6,border:'1px solid #cfd8dc',fontSize:'1rem',marginBottom:8}}>
+          {doctorProfiles.map((doc, idx) => (
+            <option key={doc.name} value={idx}>{doc.name}</option>
+          ))}
+        </select>
+      </Row>
+      <Row>
         <Label>Doctor Name</Label>
         <Input name="doctor" value={form.doctor} onChange={handleChange} required placeholder="Dr. John Doe" />
       </Row>
+      {form.doctor && (
+        <>
+          <Row>
+            <Label>Degree</Label>
+            <Input name="degree" value={form.degree} onChange={handleChange} placeholder="MBBS, MD" />
+          </Row>
+          <Row>
+            <Label>Reg. No</Label>
+            <Input name="reg" value={form.reg} onChange={handleChange} placeholder="123456" />
+          </Row>
+          <Row>
+            <Label>Phone</Label>
+            <Input name="phone" value={form.phone} onChange={handleChange} placeholder="9876543210" />
+          </Row>
+          <Row>
+            <Label>Clinic/Hospital</Label>
+            <Input name="clinic" value={form.clinic} onChange={handleChange} placeholder="City Health Clinic" />
+          </Row>
+          <Row>
+            <Label>Address</Label>
+            <Input name="address" value={form.address} onChange={handleChange} placeholder="123 Main St, Metro City" />
+          </Row>
+        </>
+      )}
       <Row>
         <Label>Patient Name</Label>
         <Input name="patient" value={form.patient} onChange={handleChange} required placeholder="Jane Smith" />
