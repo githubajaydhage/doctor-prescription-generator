@@ -10,39 +10,6 @@ const FormCard = styled.form`
   margin-bottom: 28px;
   display: flex;
   flex-direction: column;
-      <Row>
-        <Label>Medicines</Label>
-        <MedList>
-          <MedRow style={{fontWeight:600, color:'#1976d2', fontSize:'1rem', background:'#f0f4f8', borderRadius:6, padding:'4px 0', flexWrap:'nowrap'}}>
-            <span style={{minWidth:120}}>Medicine</span>
-            <span style={{minWidth:90}}>Dosage</span>
-            <span style={{minWidth:90}}>Frequency</span>
-            <span style={{minWidth:90}}>Duration</span>
-            <span style={{minWidth:120}}>Instructions (Sig.)</span>
-            <span style={{minWidth:70}}>Refill</span>
-            <span style={{minWidth:36}}></span>
-            <span style={{minWidth:36}}></span>
-          </MedRow>
-          {form.medicines.map((med, i) => (
-            <MedRow key={i}>
-              <Input value={med.name} onChange={e => handleMedicineChange(i, 'name', e.target.value)} required placeholder={`Medicine #${i+1}`} />
-              <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
-              <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
-              <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
-              <Input value={med.instructions || ''} onChange={e => handleMedicineChange(i, 'instructions', e.target.value)} placeholder="e.g. After food" />
-              <Input value={med.refill || ''} onChange={e => handleMedicineChange(i, 'refill', e.target.value)} placeholder="e.g. 2x" />
-              {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
-              {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
-            </MedRow>
-          ))}
-        </MedList>
-        <div style={{display:'flex',gap:8,margin:'12px 0 0 0'}}>
-          <Button type="button" onClick={() => setForm({ ...form, medicines: getRandomMedicines() })} style={{background:'#1976d2'}}>Randomize</Button>
-          <Button type="button" onClick={() => setForm({ ...form, medicines: [{ name: "", dosage: "", frequency: "", duration: "", instructions: "", refill: "" }] })} style={{background:'#e57373'}}>Clear</Button>
-        </div>
-        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine, or use random suggestions.</div>
-      </Row>
-  flex-direction: column;
   gap: 8px;
 `;
 
