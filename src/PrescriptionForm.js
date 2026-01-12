@@ -1,5 +1,3 @@
-import jsPDF from "jspdf";
-import { Autocomplete } from "@mui/material";
 // Styled components for missing UI elements
 const Row = styled.div`
   display: flex;
@@ -46,6 +44,21 @@ const MedList = styled.div`
 `;
 
 import React, { useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+// Example medicine list for autocomplete
+const medicineList = [
+  "Amoxicillin 500mg Cap",
+  "Paracetamol 500mg Tab",
+  "Ibuprofen 400mg Tab",
+  "Cough Syrup 5ml",
+  "Cetirizine 10mg Tab",
+  "Azithromycin 250mg Tab",
+  "Metformin 500mg Tab",
+  "Atorvastatin 10mg Tab",
+  "Omeprazole 20mg Cap",
+  "Vitamin D3 60k IU Cap"
+];
 import styled from "styled-components";
 
 const FormCard = styled.form`
@@ -152,8 +165,46 @@ function getRandomMedicines() {
 }
 
 function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
-    // Medicine autocomplete options
-    const medicineOptions = defaultMedicines.map(m => m.name);
+    const [autocomplete, setAutocomplete] = useState("");
+    const [suggestions, setSuggestions] = useState([]);
+    // Autocomplete handler for medicine name
+    const handleMedicineInput = (i, value) => {
+      setAutocomplete(value);
+      const filtered = medicineList.filter(med => med.toLowerCase().includes(value.toLowerCase()));
+      setSuggestions(filtered);
+      handleMedicineChange(i, "name", value);
+    };
+
+    const selectSuggestion = (i, suggestion) => {
+      handleMedicineChange(i, "name", suggestion);
+      setAutocomplete("");
+      setSuggestions([]);
+    };
+    // PDF export functionality
+    const exportPDF = () => {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Prescription", 14, 18);
+      doc.setFontSize(12);
+      doc.text(`Doctor: ${form.doctor}`, 14, 28);
+      doc.text(`Patient: ${form.patient}`, 14, 36);
+      doc.text(`Date: ${form.date}`, 14, 44);
+      doc.text("Medicines:", 14, 54);
+      const rows = form.medicines.map(med => [med.name, med.dosage, med.frequency, med.duration]);
+      doc.autoTable({
+        head: [["Medicine", "Dosage", "Frequency", "Duration"]],
+        body: rows,
+        startY: 58,
+        theme: "grid"
+      });
+      doc.text(`Notes: ${form.notes}`, 14, doc.lastAutoTable.finalY + 10);
+      doc.save("prescription.pdf");
+    };
+
+    // Print functionality
+    const printPrescription = () => {
+      window.print();
+    };
   const [form, setForm] = useState({
     doctor: "",
     patient: "",
@@ -180,24 +231,6 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
     setForm({ ...form, medicines });
     setError("");
     setSuccess(false);
-  };
-
-  // PDF export
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text(`Doctor: ${form.doctor}`, 10, 10);
-    doc.text(`Patient: ${form.patient}`, 10, 20);
-    doc.text(`Date: ${form.date}`, 10, 30);
-    doc.text("Medicines:", 10, 40);
-    form.medicines.forEach((med, idx) => {
-      doc.text(
-        `${idx + 1}. ${med.name} | ${med.dosage} | ${med.frequency} | ${med.duration}`,
-        10,
-        50 + idx * 10
-      );
-    });
-    doc.text(`Notes: ${form.notes}`, 10, 60 + form.medicines.length * 10);
-    doc.save("prescription.pdf");
   };
 
   const addMedicine = () => {
@@ -268,16 +301,16 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
           </MedRow>
           {form.medicines.map((med, i) => (
             <MedRow key={i}>
-              <Autocomplete
-                freeSolo
-                options={medicineOptions}
-                value={med.name}
-                onInputChange={(_, value) => handleMedicineChange(i, 'name', value)}
-                renderInput={(params) => (
-                  <Input {...params} required placeholder={`Medicine #${i+1}`} />
+              <div style={{position:'relative',width:'100%'}}>
+                <Input value={med.name} onChange={e => handleMedicineInput(i, e.target.value)} required placeholder={`Medicine #${i+1}`} autoComplete="off" />
+                {autocomplete && suggestions.length > 0 && (
+                  <div style={{position:'absolute',zIndex:10,background:'#fff',border:'1px solid #cfd8dc',borderRadius:6,boxShadow:'0 2px 8px rgba(0,0,0,0.08)',width:'100%'}}>
+                    {suggestions.map(suggestion => (
+                      <div key={suggestion} style={{padding:'8px',cursor:'pointer'}} onClick={() => selectSuggestion(i, suggestion)}>{suggestion}</div>
+                    ))}
+                  </div>
                 )}
-                style={{minWidth:120}}
-              />
+              </div>
               <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
               <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
               <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
@@ -291,11 +324,11 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
         <Label>Notes</Label>
         <TextArea name="notes" value={form.notes} onChange={handleChange} rows={2} placeholder="Any special instructions..." />
       </Row>
-      <div style={{display:'flex',gap:12,marginTop:12}}>
-        <Button type="submit" primary>Generate Prescription</Button>
-        <Button type="button" onClick={handleExportPDF} style={{background:'#1976d2'}}>Export PDF</Button>
-        <Button type="button" onClick={() => window.print()} style={{background:'#388e3c'}}>Print</Button>
+      <div style={{display:'flex',gap:12,margin:'16px 0'}}>
+        <Button type="button" onClick={exportPDF} style={{background:'#1976d2'}}>Export PDF</Button>
+        <Button type="button" onClick={printPrescription} style={{background:'#388e3c'}}>Print</Button>
       </div>
+      <Button type="submit" primary>Generate Prescription</Button>
     </FormCard>
   );
 }
