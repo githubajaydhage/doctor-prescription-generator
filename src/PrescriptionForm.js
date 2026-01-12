@@ -301,7 +301,8 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
           </MedRow>
           {form.medicines.map((med, i) => (
             <MedRow key={i}>
-              <div style={{position:'relative',width:'100%'}}>
+              {/* Medicine Name Autocomplete */}
+              <div style={{position:'relative',minWidth:120,maxWidth:180,flex:'1 1 120px'}}>
                 <Input value={med.name} onChange={e => handleMedicineInput(i, e.target.value)} required placeholder={`Medicine #${i+1}`} autoComplete="off" />
                 {autocomplete && suggestions.length > 0 && (
                   <div style={{position:'absolute',zIndex:10,background:'#fff',border:'1px solid #cfd8dc',borderRadius:6,boxShadow:'0 2px 8px rgba(0,0,0,0.08)',width:'100%'}}>
@@ -311,11 +312,19 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
                   </div>
                 )}
               </div>
-              <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
-              <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
-              <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
-              {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
-              {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
+              <div style={{minWidth:90,maxWidth:180,flex:'1 1 90px'}}>
+                <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
+              </div>
+              <div style={{minWidth:90,maxWidth:180,flex:'1 1 90px'}}>
+                <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
+              </div>
+              <div style={{minWidth:90,maxWidth:180,flex:'1 1 90px'}}>
+                <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
+              </div>
+              <div style={{minWidth:36,maxWidth:36,flex:'0 0 36px',display:'flex',alignItems:'center'}}>
+                {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
+                {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
+              </div>
             </MedRow>
           ))}
         </MedList>
