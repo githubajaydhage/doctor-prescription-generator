@@ -1,3 +1,49 @@
+import jsPDF from "jspdf";
+import { Autocomplete } from "@mui/material";
+// Styled components for missing UI elements
+const Row = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+`;
+
+const Label = styled.label`
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1976d2;
+`;
+
+const Input = styled.input`
+  padding: 8px 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  outline: none;
+  &:focus {
+    border-color: #1976d2;
+  }
+`;
+
+const TextArea = styled.textarea`
+  padding: 8px 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  outline: none;
+  resize: vertical;
+  &:focus {
+    border-color: #1976d2;
+  }
+`;
+
+const MedList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+`;
 
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -106,35 +152,19 @@ function getRandomMedicines() {
 }
 
 function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
+    // Medicine autocomplete options
+    const medicineOptions = defaultMedicines.map(m => m.name);
   const [form, setForm] = useState({
-    doctor: doctorProfiles[0].name,
-    degree: doctorProfiles[0].degree,
-    reg: doctorProfiles[0].reg,
-    phone: doctorProfiles[0].phone,
-    clinic: doctorProfiles[0].clinic,
-    address: doctorProfiles[0].address,
+    doctor: "",
     patient: "",
     date: new Date().toISOString().slice(0, 10),
     medicines: [
-      { name: "", dosage: "", frequency: "", duration: "", instructions: "", refill: "" }
+      { name: "", dosage: "", frequency: "", duration: "" }
     ],
-    notes: "",
-    signature: null
+    notes: ""
   });
   const [error, setError] = useState("");
-  const [signaturePreview, setSignaturePreview] = useState(null);
   const [success, setSuccess] = useState(false);
-  const handleSignatureUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setForm({ ...form, signature: ev.target.result });
-        setSignaturePreview(ev.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -142,33 +172,7 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
     setSuccess(false);
   };
 
-  // Handle doctor profile selection
-  const handleDoctorProfile = (e) => {
-    const idx = e.target.value;
-    if (doctorProfiles[idx].name === "Custom") {
-      setForm({
-        ...form,
-        doctor: "",
-        degree: "",
-        reg: "",
-        phone: "",
-        clinic: "",
-        address: ""
-      });
-    } else {
-      setForm({
-        ...form,
-        doctor: doctorProfiles[idx].name,
-        degree: doctorProfiles[idx].degree,
-        reg: doctorProfiles[idx].reg,
-        phone: doctorProfiles[idx].phone,
-        clinic: doctorProfiles[idx].clinic,
-        address: doctorProfiles[idx].address
-      });
-    }
-    setError("");
-    setSuccess(false);
-  };
+  // No doctor profile selection in simple form
 
   const handleMedicineChange = (i, field, value) => {
     const medicines = [...form.medicines];
@@ -176,6 +180,24 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
     setForm({ ...form, medicines });
     setError("");
     setSuccess(false);
+  };
+
+  // PDF export
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Doctor: ${form.doctor}`, 10, 10);
+    doc.text(`Patient: ${form.patient}`, 10, 20);
+    doc.text(`Date: ${form.date}`, 10, 30);
+    doc.text("Medicines:", 10, 40);
+    form.medicines.forEach((med, idx) => {
+      doc.text(
+        `${idx + 1}. ${med.name} | ${med.dosage} | ${med.frequency} | ${med.duration}`,
+        10,
+        50 + idx * 10
+      );
+    });
+    doc.text(`Notes: ${form.notes}`, 10, 60 + form.medicines.length * 10);
+    doc.save("prescription.pdf");
   };
 
   const addMedicine = () => {
@@ -223,66 +245,12 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
       {error && <div style={{color:'#d32f2f',fontWeight:500,marginBottom:8}}>{error}</div>}
       {success && <div style={{color:'#388e3c',fontWeight:500,marginBottom:8}}>Prescription generated!</div>}
       <Row>
-        <Label>Doctor Profile</Label>
-        <select onChange={handleDoctorProfile} style={{padding:'8px 10px',borderRadius:6,border:'1px solid #cfd8dc',fontSize:'1rem',marginBottom:8}}>
-          {doctorProfiles.map((doc, idx) => (
-            <option key={doc.name} value={idx}>{doc.name}</option>
-          ))}
-        </select>
-      </Row>
-      <Row>
-        <Label>Doctor Digital Signature</Label>
-        <input type="file" accept="image/*" onChange={handleSignatureUpload} />
-        {signaturePreview && <img src={signaturePreview} alt="Signature Preview" style={{maxWidth:180,marginTop:8}} />}
-      </Row>
-      <Row>
         <Label>Doctor Name</Label>
         <Input name="doctor" value={form.doctor} onChange={handleChange} required placeholder="Dr. John Doe" />
       </Row>
-      {form.doctor && (
-        <>
-          <Row>
-            <Label>Degree</Label>
-            <Input name="degree" value={form.degree} onChange={handleChange} placeholder="MBBS, MD" />
-          </Row>
-          <Row>
-            <Label>Reg. No</Label>
-            <Input name="reg" value={form.reg} onChange={handleChange} placeholder="123456" />
-          </Row>
-          <Row>
-            <Label>Phone</Label>
-            <Input name="phone" value={form.phone} onChange={handleChange} placeholder="9876543210" />
-          </Row>
-          <Row>
-            <Label>Clinic/Hospital</Label>
-            <Input name="clinic" value={form.clinic} onChange={handleChange} placeholder="City Health Clinic" />
-          </Row>
-          <Row>
-            <Label>Address</Label>
-            <Input name="address" value={form.address} onChange={handleChange} placeholder="123 Main St, Metro City" />
-          </Row>
-        </>
-      )}
       <Row>
         <Label>Patient Name</Label>
         <Input name="patient" value={form.patient} onChange={handleChange} required placeholder="Jane Smith" />
-      </Row>
-      <Row>
-        <Label>Age</Label>
-        <Input name="age" value={form.age || ''} onChange={handleChange} placeholder="e.g. 29" type="number" min="0" style={{maxWidth:100}} />
-      </Row>
-      <Row>
-        <Label>Sex</Label>
-        <select name="sex" value={form.sex || ''} onChange={handleChange} style={{padding:'8px 10px',borderRadius:6,border:'1px solid #cfd8dc',fontSize:'1rem',maxWidth:120}}>
-          <option value="">Select</option>
-          <option value="M">M</option>
-          <option value="F">F</option>
-          <option value="Other">Other</option>
-        </select>
-      </Row>
-      <Row>
-        <Label>Contact</Label>
-        <Input name="contact" value={form.contact || ''} onChange={handleChange} placeholder="Patient contact (optional)" />
       </Row>
       <Row>
         <Label>Date</Label>
@@ -290,45 +258,44 @@ function PrescriptionForm({ setPrescription, setRxSymbol, setDefaultMeds }) {
       </Row>
       <Row>
         <Label>Medicines</Label>
-        <div style={{display:'flex',gap:8,marginBottom:8}}>
-          <Button type="button" onClick={() => setForm({ ...form, medicines: getRandomMedicines() })} style={{background:'#1976d2'}}>Randomize</Button>
-          <Button type="button" onClick={() => setForm({ ...form, medicines: [{ name: "", dosage: "", frequency: "", duration: "" }] })} style={{background:'#e57373'}}>Clear</Button>
-        </div>
         <MedList>
           <MedRow style={{fontWeight:600, color:'#1976d2', fontSize:'1rem', background:'#f0f4f8', borderRadius:6, padding:'4px 0', flexWrap:'nowrap'}}>
             <span style={{minWidth:120}}>Medicine</span>
             <span style={{minWidth:90}}>Dosage</span>
             <span style={{minWidth:90}}>Frequency</span>
             <span style={{minWidth:90}}>Duration</span>
-            <span style={{minWidth:120}}>Instructions (Sig.)</span>
-            <span style={{minWidth:70}}>Refill</span>
-            <span style={{minWidth:36}}></span>
             <span style={{minWidth:36}}></span>
           </MedRow>
           {form.medicines.map((med, i) => (
             <MedRow key={i}>
-              <Input value={med.name} onChange={e => handleMedicineChange(i, 'name', e.target.value)} required placeholder={`Medicine #${i+1}`} />
+              <Autocomplete
+                freeSolo
+                options={medicineOptions}
+                value={med.name}
+                onInputChange={(_, value) => handleMedicineChange(i, 'name', value)}
+                renderInput={(params) => (
+                  <Input {...params} required placeholder={`Medicine #${i+1}`} />
+                )}
+                style={{minWidth:120}}
+              />
               <Input value={med.dosage} onChange={e => handleMedicineChange(i, 'dosage', e.target.value)} placeholder="Dosage" />
               <Input value={med.frequency} onChange={e => handleMedicineChange(i, 'frequency', e.target.value)} placeholder="Frequency" />
               <Input value={med.duration} onChange={e => handleMedicineChange(i, 'duration', e.target.value)} placeholder="Duration" />
-              <Input value={med.instructions || ''} onChange={e => handleMedicineChange(i, 'instructions', e.target.value)} placeholder="e.g. After food" />
-              <Input value={med.refill || ''} onChange={e => handleMedicineChange(i, 'refill', e.target.value)} placeholder="e.g. 2x" />
               {form.medicines.length > 1 && <Button type="button" onClick={() => removeMedicine(i)} style={{fontSize:'1.1rem',background:'#e57373'}}>–</Button>}
               {i === form.medicines.length - 1 && <Button type="button" onClick={addMedicine} style={{fontSize:'1.1rem',background:'#81c784'}}>+</Button>}
             </MedRow>
           ))}
         </MedList>
-        <div style={{fontSize:'0.93rem',color:'#888',marginTop:4}}>You can add dosage, frequency, and duration for each medicine, or use random suggestions.</div>
       </Row>
       <Row>
         <Label>Notes</Label>
         <TextArea name="notes" value={form.notes} onChange={handleChange} rows={2} placeholder="Any special instructions..." />
       </Row>
-      <Row>
-        <Label>Prescription Validity (days)</Label>
-        <Input name="validity" value={form.validity || ''} onChange={handleChange} placeholder="e.g. 7" type="number" min="1" style={{maxWidth:100}} />
-      </Row>
-      <Button type="submit" primary>Generate Prescription</Button>
+      <div style={{display:'flex',gap:12,marginTop:12}}>
+        <Button type="submit" primary>Generate Prescription</Button>
+        <Button type="button" onClick={handleExportPDF} style={{background:'#1976d2'}}>Export PDF</Button>
+        <Button type="button" onClick={() => window.print()} style={{background:'#388e3c'}}>Print</Button>
+      </div>
     </FormCard>
   );
 }
